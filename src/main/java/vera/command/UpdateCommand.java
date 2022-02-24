@@ -4,19 +4,14 @@ import vera.Storage;
 import vera.TaskList;
 import vera.Ui;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import static vera.constant.Indexes.TASK_DATE_INDEX;
 import static vera.constant.Messages.ERROR_SYSTEM_FAULT_MESSAGE;
 
 public class UpdateCommand extends Command {
-    String[] toAddTaskContent;
-    LocalDateTime toAddTaskDate;
+    String[] toAdd;
 
-    public UpdateCommand(String[] filteredTaskContent, LocalDateTime dateInput) {
-        toAddTaskContent = filteredTaskContent;
-        toAddTaskDate = dateInput;
+    public UpdateCommand(String[] filteredTaskContent) {
+        toAdd = filteredTaskContent;
     }
 
     public boolean isTaskBeingReplaced(Ui ui) {
@@ -26,18 +21,18 @@ public class UpdateCommand extends Command {
                 + "with the new input? (Y/N)");
         ui.showLine();
         while (true) {
-            String input = ui.readCommand();
             ui.showLine();
+            String input = ui.readCommand();
             if (input.trim().equalsIgnoreCase("Y")
                     || input.trim().equalsIgnoreCase("Yes")) {
                 isOldTaskReplaced = true;
-                ui.showToUser("Understood. Proceeding to change"
+                System.out.println("Understood. Proceeding to change"
                         + "\nthe old task with the new one..........");
                 break;
             }
             if (input.trim().equalsIgnoreCase("N")
                     || input.trim().equalsIgnoreCase("No")) {
-                ui.showToUser("Okay, we'll keep it as it is.");
+                System.out.println("Okay, we'll keep it as it is.");
                 break;
             }
             ui.showToUser("Please confirm your choice with either Y (Yes) or N (No).");
@@ -47,19 +42,13 @@ public class UpdateCommand extends Command {
     }
 
     public void execute(TaskList taskList, Ui ui, Storage storage) {
-        String filteredTaskDate;
-        if (toAddTaskDate != null) {
-            filteredTaskDate = toAddTaskDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy, EEE hh:mm a"));
-        } else {
-            filteredTaskDate = toAddTaskContent[TASK_DATE_INDEX].trim();
-        }
         if (isTaskBeingReplaced(ui)) {
-            int taskIndexToReplace = taskList.findIndexToReplace(toAddTaskContent);
+            int taskIndexToReplace = taskList.findIndexToReplace(toAdd);
             if (taskIndexToReplace == -1) {
                 System.out.println(ERROR_SYSTEM_FAULT_MESSAGE);
                 return;
             }
-            taskList.replaceTaskDate(taskIndexToReplace, filteredTaskDate, ui);
+            taskList.replaceTaskDate(taskIndexToReplace, toAdd[TASK_DATE_INDEX].trim(), ui);
             storage.rewriteSavedState(taskList);
         }
     }

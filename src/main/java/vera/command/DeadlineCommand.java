@@ -6,15 +6,11 @@ import vera.Ui;
 import vera.exception.InputEmptyException;
 import vera.exception.InputRepeatedException;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 import static vera.constant.Indexes.TASK_DATE_INDEX;
 import static vera.constant.Indexes.TASK_DESCRIPTION_INDEX;
 
 public class DeadlineCommand extends Command {
-    String[] toAddTaskContent;
-    LocalDateTime toAddTaskDate;
+    String[] toAdd;
 
     public static final String COMMAND_WORD = "deadline";
     public static final String MESSAGE_USAGE = "Deadline: Adds a 'deadline' task "
@@ -22,28 +18,23 @@ public class DeadlineCommand extends Command {
             + "to finish the task by.\n\nTo execute the command,\nenter 'deadline <task_description> "
             + "/by <task_date>'.\nE.g. deadline return book /by Sunday.";
 
-    public DeadlineCommand(String[] filteredTaskContent, TaskList tasklist, LocalDateTime dateInput)
+    public DeadlineCommand(String[] filteredTaskContent, TaskList tasklist)
             throws InputEmptyException, InputRepeatedException {
-        if (filteredTaskContent[TASK_DESCRIPTION_INDEX].isBlank()) {
+        if (filteredTaskContent[TASK_DESCRIPTION_INDEX].isBlank() ||
+                filteredTaskContent[TASK_DATE_INDEX].isBlank()) {
             throw new InputEmptyException();
         }
         if (tasklist.isTaskAlreadyAdded(filteredTaskContent[TASK_DESCRIPTION_INDEX].trim())) {
             throw new InputRepeatedException();
         }
-        toAddTaskDate = dateInput;
-        toAddTaskContent = filteredTaskContent;
+        toAdd = filteredTaskContent;
     }
 
     @Override
     public void execute(TaskList taskList, Ui ui, Storage storage) {
-        String filteredTaskDate;
-        if (toAddTaskDate != null) {
-            filteredTaskDate = toAddTaskDate.format(DateTimeFormatter.ofPattern("dd MMM yyyy, EEE hh:mm a"));
-        } else {
-            filteredTaskDate = toAddTaskContent[TASK_DATE_INDEX].trim();
-        }
-        taskList.addTask(toAddTaskContent[TASK_DESCRIPTION_INDEX].trim(), filteredTaskDate, COMMAND_WORD);
-        storage.appendToFile(toAddTaskContent[TASK_DESCRIPTION_INDEX].trim()
-                , filteredTaskDate, "0", "D");
+        taskList.addTask(toAdd[TASK_DESCRIPTION_INDEX].trim(),
+                toAdd[TASK_DATE_INDEX].trim(), COMMAND_WORD);
+        storage.appendToFile(toAdd[TASK_DESCRIPTION_INDEX].trim(),
+                toAdd[TASK_DATE_INDEX].trim(), "0", "D");
     }
 }

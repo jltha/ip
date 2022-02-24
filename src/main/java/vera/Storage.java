@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static vera.constant.Indexes.DIR_INDEX;
 import static vera.constant.Messages.ERROR_IO_FAILURE_MESSAGE;
 import static vera.constant.Messages.ERROR_CORRUPT_SAVED_FILE_MESSAGE;
 import static vera.constant.Messages.ERROR_FILE_NOT_FOUND_MESSAGE;
@@ -22,8 +21,7 @@ public class Storage {
     public Storage(String filePath) throws IOException {
         saveFilePath = filePath;
         System.out.println("Booting up...");
-        String[] directoryName = filePath.split("/");
-        File saveDirectory = new File(directoryName[DIR_INDEX]);
+        File saveDirectory = new File("data");
         if (saveDirectory.mkdir()) {
             System.out.println("Creating save directory...");
         }
